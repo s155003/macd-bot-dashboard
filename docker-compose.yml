@@ -1,0 +1,24 @@
+services:
+  macd-bot:
+    build: .
+    container_name: macd-bot
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - ALPACA_API_KEY=${ALPACA_API_KEY}
+      - ALPACA_SECRET_KEY=${ALPACA_SECRET_KEY}
+      - ALPACA_BASE_URL=${ALPACA_BASE_URL:-https://paper-api.alpaca.markets}
+      - BOT_SYMBOL=${BOT_SYMBOL:-SPY}
+      - BOT_QTY=${BOT_QTY:-1}
+      - BOT_INTERVAL_SEC=${BOT_INTERVAL_SEC:-14400}
+      - BOT_LOOKBACK_DAYS=${BOT_LOOKBACK_DAYS:-100}
+      - BOT_DB_PATH=/app/data/bot_state.db
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/config')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
